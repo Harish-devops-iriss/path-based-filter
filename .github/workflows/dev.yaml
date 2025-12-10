@@ -14,7 +14,6 @@ jobs:
     outputs:
       infrastructure: ${{ steps.filter.outputs.infrastructure }}
       application: ${{ steps.filter.outputs.application }}
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -37,7 +36,6 @@ jobs:
     environment: Development
     needs: changes
     if: needs.changes.outputs.infrastructure == 'true'
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -53,10 +51,8 @@ jobs:
     name: Build Application
     runs-on: ubuntu-latest
     environment: Development
-    needs:
-      - changes
+    needs: changes
     if: needs.changes.outputs.application == 'true'
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -68,22 +64,21 @@ jobs:
       - name: Build (placeholder)
         run: echo "Building application..."
 
- deploy_application:
-    name: Build Application
+  deploy_application:
+    name: Deploy Application
     runs-on: ubuntu-latest
     environment: Development
     needs:
       - changes
       - build_application
     if: needs.changes.outputs.application == 'true'
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Notify start (Application)
-        run: echo "Application build started"
+      - name: Notify start (Application Deploy)
+        run: echo "Application deploy started"
 
-      # --- BUILD APP HERE ---
-      - name: Build (placeholder)
-        run: echo "Building application..."
+      # --- DEPLOY APP HERE ---
+      - name: Deploy (placeholder)
+        run: echo "Deploying application..."
