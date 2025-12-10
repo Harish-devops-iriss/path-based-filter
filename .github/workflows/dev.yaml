@@ -35,7 +35,6 @@ jobs:
     name: Deploy Infrastructure
     runs-on: ubuntu-latest
     environment: Development
-    needs: changes
     if: needs.changes.outputs.infrastructure == 'true'
 
     steps:
@@ -53,13 +52,7 @@ jobs:
     name: Build Application
     runs-on: ubuntu-latest
     environment: Development
-    needs:
-      - changes
-      - deploy_infrastructure
-    if: >
-      needs.changes.outputs.application == 'true' &&
-      (needs.deploy_infrastructure.result == 'success' || needs.deploy_infrastructure.result == 'skipped')
-
+    if: needs.changes.outputs.application == 'true' 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
