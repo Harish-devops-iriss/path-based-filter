@@ -67,3 +67,23 @@ jobs:
       # --- BUILD APP HERE ---
       - name: Build (placeholder)
         run: echo "Building application..."
+
+ deploy_application:
+    name: Build Application
+    runs-on: ubuntu-latest
+    environment: Development
+    needs:
+      - changes
+      - build_application
+    if: needs.changes.outputs.application == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Notify start (Application)
+        run: echo "Application build started"
+
+      # --- BUILD APP HERE ---
+      - name: Build (placeholder)
+        run: echo "Building application..."
