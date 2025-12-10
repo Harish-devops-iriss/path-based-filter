@@ -1,4 +1,4 @@
-## New Development workflow structure for Backend infra and application deployment.
+# New Development workflow structure for Backend infra and application deployment.
 name: Backend Dev V2 Workflow
 
 on:
@@ -9,6 +9,7 @@ on:
       - 'infrastructure/**'
 
 jobs:
+  changes:
     name: Detect Changes
     runs-on: ubuntu-latest
     outputs:
@@ -42,14 +43,14 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Notify start (Infrastructure)
-        run: |
-         echo "Infrastructure deployment started"
+        run: echo "Infrastructure deployment started"
 
-      
+      - name: Notify failure (Infrastructure)
         if: failure()
         env:
-          TEAMS_WEBHOOK_URL: ${{ env.TEAMS_WEBHOOK_URL }}
+          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
           DEPLOYMENT_STAGE: Infrastructure
+          DEPLOYMENT_ENVIRONMENT: Development
           STATUS: Failed
           STATUS_COLOR: 'BB2200'
           COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
@@ -100,7 +101,4 @@ jobs:
         uses: actions/checkout@v4
     
       - name: Notify start (Application)
-        run: |
-         echo "Application build started"
-
-     
+        run: echo "Application build started"
