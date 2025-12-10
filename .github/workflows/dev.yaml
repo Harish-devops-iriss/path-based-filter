@@ -1,12 +1,11 @@
-# New Development workflow structure for Backend infra and application deployment.
 name: Backend Dev V2 Workflow
 
 on:
   push:
     branches: [ main ]
     paths:
-      - 'src/**'
-      - 'infrastructure/**'
+      - "src/**"
+      - "infrastructure/**"
 
 jobs:
   changes:
@@ -15,6 +14,7 @@ jobs:
     outputs:
       infrastructure: ${{ steps.filter.outputs.infrastructure }}
       application: ${{ steps.filter.outputs.application }}
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -27,9 +27,9 @@ jobs:
         with:
           filters: |
             infrastructure:
-              - 'infrastructure/**'
+              - "infrastructure/**"
             application:
-              - 'src/**'
+              - "src/**"
 
   deploy_infrastructure:
     name: Deploy Infrastructure
@@ -45,45 +45,9 @@ jobs:
       - name: Notify start (Infrastructure)
         run: echo "Infrastructure deployment started"
 
-      - name: Notify failure (Infrastructure)
-        if: failure()
-        env:
-          TEAMS_WEBHOOK_URL: ${{ secrets.TEAMS_WEBHOOK_URL }}
-          DEPLOYMENT_STAGE: Infrastructure
-          DEPLOYMENT_ENVIRONMENT: Development
-          STATUS: Failed
-          STATUS_COLOR: 'BB2200'
-          COMMIT_MESSAGE: ${{ github.event.head_commit.message }}
-        run: |
-          if [ -z "$TEAMS_WEBHOOK_URL" ]; then exit 0; fi
-          payload=$(jq -n \
-            --arg stage "$DEPLOYMENT_STAGE" \
-            --arg status "$STATUS" \
-            --arg env "$DEPLOYMENT_ENVIRONMENT" \
-            --arg branch "$GITHUB_REF_NAME" \
-            --arg sha "$GITHUB_SHA" \
-            --arg message "$COMMIT_MESSAGE" \
-            --arg actor "$GITHUB_ACTOR" \
-            --arg color "$STATUS_COLOR" \
-            '{
-              "@type": "MessageCard",
-              "@context": "http://schema.org/extensions",
-              "summary": "\($stage) deployment \($status)",
-              "themeColor": $color,
-              "sections": [
-                {
-                  "activityTitle": "cicd-build-pipeline - ESentry Devs | \($stage) \($status)",
-                  "activitySubtitle": "Environment: \($env)",
-                  "facts": [
-                    {"name": "Branch", "value": $branch},
-                    {"name": "Commit", "value": $sha},
-                    {"name": "Commit Message", "value": $message},
-                    {"name": "Actor", "value": $actor}
-                  ]
-                }
-              ]
-            }')
-          curl -X POST -H "Content-Type: application/json" -d "$payload" "$TEAMS_WEBHOOK_URL"
+      # --- DEPLOY INFRASTRUCTURE HERE ---
+      - name: Deploy (placeholder)
+        run: echo "Running infra deployment..."
 
   build_application:
     name: Build Application
@@ -99,6 +63,10 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
-    
+
       - name: Notify start (Application)
         run: echo "Application build started"
+
+      # --- BUILD APP HERE ---
+      - name: Build (placeholder)
+        run: echo "Building application..."
