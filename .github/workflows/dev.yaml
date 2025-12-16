@@ -76,7 +76,10 @@ jobs:
     needs:
       - changes
       - build_application
-    if: needs.changes.outputs.application == 'true'
+      - deploy_infrastructure
+    if: >
+      needs.changes.outputs.application == 'true' &&
+      (needs.deploy_infrastructure.result == 'skipped' || needs.deploy_infrastructure.result == 'success')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -84,7 +87,6 @@ jobs:
       - name: Notify start (Application Deploy)
         run: echo "Application deploy started"
 
-      # --- DEPLOY APP HERE ---
       - name: Deploy (placeholder)
         run: echo "Deploying application..."
 
