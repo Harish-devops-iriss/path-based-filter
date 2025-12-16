@@ -78,6 +78,7 @@ jobs:
       - build_application
       - deploy_infrastructure
     if: >
+      always() &&
       needs.changes.outputs.application == 'true' &&
       (needs.deploy_infrastructure.result == 'skipped' || needs.deploy_infrastructure.result == 'success')
     steps:
