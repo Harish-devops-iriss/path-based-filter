@@ -33,8 +33,10 @@ jobs:
           filters: |
             infrastructure:
               - "infrastructure/**"
+              - "./github/**"
             application:
               - "src/**"
+              - "./github/**"
 
   deploy_infrastructure:
     name: Deploy Infrastructure
