@@ -43,36 +43,26 @@ jobs:
     needs: changes
     if: needs.changes.outputs.infrastructure == 'true'
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Notify start (Infrastructure)
-        run: echo "Infrastructure deployment started"
-
-      # --- DEPLOY INFRASTRUCTURE HERE ---
-      - name: Deploy (placeholder)
-        run: echo "Running infra deployment..."
+      - uses: actions/checkout@v4
+      - run: echo "Infrastructure deployment started"
+      - run: echo "Running infra deployment..."
 
   build_application:
-    name: Build Application
+    name: Build + Deploy Application
     runs-on: ubuntu-latest
     environment: Development
-    needs: 
-     - changes
-     - deploy_infrastructure
+    needs:
+      - changes
+      - deploy_infrastructure
     if: >
       always() &&
-      (needs.changes.outputs.application == 'true' || needs.changes.outputs.infrastructure == 'true') &&
-      (needs.deploy_infrastructure.result == 'skipped' || needs.deploy_infrastructure.result == 'success')
+      needs.changes.outputs.application == 'true' &&
+      (
+        needs.changes.outputs.infrastructure != 'true' ||
+        needs.deploy_infrastructure.result == 'success'
+      )
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Notify start (Application)
-        run: echo "Application build started"
-
-      - name: Build (placeholder)
-        run: echo "Building application..."
-
-      - name: Deploy (placeholder)
-        run: echo "Deploying application..."
+      - uses: actions/checkout@v4
+      - run: echo "Application build started"
+      - run: echo "Building application..."
+      - run: echo "Deploying application..."
