@@ -6,7 +6,7 @@ on:
     paths:
       - "src/**"
       - "infrastructure/**"
-      - "./github/**"
+      - ".github/**"
       
 permissions:
   id-token: write
@@ -33,10 +33,10 @@ jobs:
           filters: |
             infrastructure:
               - "infrastructure/**"
-              - "./github/**"
+              - ".github/**"
             application:
               - "src/**"
-              - "./github/**"
+              - ".github/**"
 
   deploy_infrastructure:
     name: Deploy Infrastructure
