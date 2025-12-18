@@ -56,8 +56,13 @@ jobs:
     name: Build Application
     runs-on: ubuntu-latest
     environment: Development
-    needs: changes
-    if: needs.changes.outputs.application == 'true' || needs.changes.outputs.infrastructure == 'true'
+    needs: 
+     - changes
+     - deploy_infrastructure
+    if: >
+      always() &&
+      (needs.changes.outputs.application == 'true' || needs.changes.outputs.infrastructure == 'true') &&
+      (needs.deploy_infrastructure.result == 'skipped' || needs.deploy_infrastructure.result == 'success')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -67,26 +72,6 @@ jobs:
 
       - name: Build (placeholder)
         run: echo "Building application..."
-
-
-  deploy_application:
-    name: Deploy Application
-    runs-on: ubuntu-latest
-    environment: Development
-    needs:
-      - changes
-      - build_application
-      - deploy_infrastructure
-    if: >
-      always() &&
-      (needs.changes.outputs.application == 'true' || needs.changes.outputs.infrastructure == 'true') &&
-      (needs.deploy_infrastructure.result == 'skipped' || needs.deploy_infrastructure.result == 'success')
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Notify start (Application Deploy)
-        run: echo "Application deploy started"
 
       - name: Deploy (placeholder)
         run: echo "Deploying application..."
