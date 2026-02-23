@@ -3,14 +3,14 @@ name: Backend Dev V2 Workflow
 on:
   push:
     tags:
-      - 'ess-dev-infra-v*'
+      - 'ess-demo-infra-v*'
 
 jobs:
   deploy_infrastructure:
     name: Deploy Infrastructure
     runs-on: ubuntu-latest
-    environment: Development
-    if: startsWith(github.ref, 'refs/tags/ess-dev-infra-v')
+    environment: Demo
+    if: startsWith(github.ref, 'refs/tags/ess-demo-infra-v')
 
     steps:
       - name: Checkout code
@@ -21,7 +21,7 @@ jobs:
 
       - name: Run nginx container
         run: |
-          docker run -d -p 8080:80 --name dev-nginx nginx:latest
+          docker run -d -p 8080:80 --name demo-nginx nginx:latest
           sleep 5
 
       - name: Show container status
