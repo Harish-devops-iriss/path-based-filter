@@ -27,6 +27,9 @@ jobs:
       - name: Show container status
         run: docker ps
 
+      - name: Print environment variable
+        run: echo $environment
+
       - name: Echo hostname
         run: |
           echo "Runner hostname:"
