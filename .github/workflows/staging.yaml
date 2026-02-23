@@ -28,7 +28,7 @@ jobs:
         run: docker ps
 
       - name: Print environment variable
-        run: echo $environment
+        run: echo "${{ job.environment }}"
 
       - name: Echo hostname
         run: |
