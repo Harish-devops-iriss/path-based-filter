@@ -96,9 +96,10 @@ jobs:
       - deploy_infrastructure
     environment: Development
     if: >
+      always() &&
       (needs.changes.outputs.application == 'true' || needs.changes.outputs.infrastructure == 'true') &&
       needs.build_application.result == 'success' &&
-      (needs.deploy_infrastructure.result == 'skipped' || needs.deploy_infrastructure.result == 'success')
+      (needs.deploy_infrastructure.result == 'success' || needs.deploy_infrastructure.result == 'skipped')
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
