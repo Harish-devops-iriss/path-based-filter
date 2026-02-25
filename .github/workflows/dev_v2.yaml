@@ -96,7 +96,6 @@ jobs:
       - deploy_infrastructure
     environment: Development
     if: >
-      always() &&
       (needs.changes.outputs.application == 'true' || needs.changes.outputs.infrastructure == 'true') &&
       (needs.deploy_infrastructure.result == 'skipped' || needs.deploy_infrastructure.result == 'success')
     steps:
