@@ -58,7 +58,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          yarn global add aws-cdk@2
+          echo "Installing dependencies for infrastructure deployment"
 
 
   build_application:
@@ -79,7 +79,7 @@ jobs:
           export $(cat ./scripts/variables/dev.env | xargs)
           for var in $(cat ./scripts/variables/dev.env | sed 's/=.*//'); do
             echo "$var=${!var}" >> $GITHUB_ENV
-          done
+          
 
       - name: Set IMAGE_TAG
         run: |
