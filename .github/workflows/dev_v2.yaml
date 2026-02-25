@@ -97,6 +97,7 @@ jobs:
     environment: Development
     if: >
       (needs.changes.outputs.application == 'true' || needs.changes.outputs.infrastructure == 'true') &&
+      needs.build_application.result == 'success' &&
       (needs.deploy_infrastructure.result == 'skipped' || needs.deploy_infrastructure.result == 'success')
     steps:
       - name: Checkout code
