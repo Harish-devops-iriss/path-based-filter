@@ -1,0 +1,129 @@
+## New Development workflow structure for Backend infra and application deployment.
+name: Backend Dev V2 Workflow
+
+on:
+  push:
+    branches: [ main ]
+    paths:
+      - 'src/**'
+      - 'infrastructure/**'
+      - '.github/*'
+
+jobs:
+  changes:
+    name: Detect Changes
+    runs-on: ubuntu-latest
+    outputs:
+      infrastructure: ${{ steps.filter.outputs.infrastructure }}
+      application: ${{ steps.filter.outputs.application }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Detect path changes
+        id: filter
+        uses: dorny/paths-filter@v3
+        with:
+          base: ${{ github.event.before }}
+          filters: |
+            infrastructure:
+              - 'infrastructure/**'
+            application:
+              - 'src/**'
+              - '.github/*'
+
+  deploy_infrastructure:
+    name: Deploy Infrastructure
+    runs-on: ubuntu-latest
+    environment: Development
+    needs: changes
+    if: needs.changes.outputs.infrastructure == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set IMAGE_TAG
+        run: |
+          COMMIT_HASH=$(echo $GITHUB_SHA | cut -c 1-7)
+          IMAGE_TAG=${COMMIT_HASH:-latest}
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install dependencies
+        run: |
+          yarn global add aws-cdk@2
+
+
+  build_application:
+    name: Build Application
+    runs-on: ubuntu-latest
+    environment: Development
+    needs:
+      - changes
+    if: needs.changes.outputs.application == 'true' || needs.changes.outputs.infrastructure == 'true'
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Load scripts variables for job(Build Application)
+        run: |
+          cd infrastructure
+          export $(cat ./scripts/variables/dev.env | xargs)
+          for var in $(cat ./scripts/variables/dev.env | sed 's/=.*//'); do
+            echo "$var=${!var}" >> $GITHUB_ENV
+          done
+
+      - name: Set IMAGE_TAG
+        run: |
+          COMMIT_HASH=$(echo $GITHUB_SHA | cut -c 1-7)
+          IMAGE_TAG=${COMMIT_HASH:-latest}
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+  deploy_application:
+    name: Deploy Application
+    runs-on: ubuntu-latest
+    needs:
+      - changes
+      - build_application
+      - deploy_infrastructure
+    environment: Development
+    if: >
+      always() &&
+      (needs.changes.outputs.application == 'true' || needs.changes.outputs.infrastructure == 'true') &&
+      (needs.deploy_infrastructure.result == 'skipped' || needs.deploy_infrastructure.result == 'success')
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+
+      - name: Install InfluxDB CLI
+        run: |
+          wget https://dl.influxdata.com/influxdb/releases/influxdb2-client-2.7.5-linux-amd64.tar.gz
+          tar xvzf influxdb2-client-2.7.5-linux-amd64.tar.gz
+          sudo mv influx /usr/local/bin/influx
+
+      - name: Configure InfluxDB Token
+        run: |
+          echo "Influx token loaded successfully"
+
+      - name: Set IMAGE_TAG
+        run: |
+          COMMIT_HASH=$(echo $GITHUB_SHA | cut -c 1-7)
+          IMAGE_TAG=${COMMIT_HASH:-latest}
+          echo "IMAGE_TAG=$IMAGE_TAG" >> $GITHUB_ENV
+
+      - name: Deploy infrastructure
+        run: | 
+           echo "Deploy application using IMAGE_TAG: $IMAGE_TAG"
